@@ -4,36 +4,47 @@ Created on Thu Mar 26 20:39:52 2020
 
 @author: nakatomi
 """
+# 各ライブラリをインポートします。
+# pathlib:file pathを得ます。objectなので扱いやすいです。
+# pydicom:pythonでDICOMを扱うためのライブラリです。
+# re:正規表現で検索置換などを行うためのライブラリです。
+# pandas:Dataframe形式で多次元配列で処理を行うためのライブラリです。
+# 整形してcsvに出力するために使います。
+#
 
 from pathlib import Path
-import pydicom, re
+import pydicom
+import re
 import pandas as pd
 import numpy as np
 
 # path設定
 dicomfilepath = 'C:\新しいフォルダー\研究用\CTDIDLP'
 outputpath = 'C:\新しいフォルダー\研究用\CTDIDLP\CTDIDLP.csv'
-# =============================================================================
 # dicomfilepath はルートディレクトリを指定する
 # outputpath　はcsvのファイルネームを指定する
-# =============================================================================
+
 # ファイルパスを得る
 mypath = Path(dicomfilepath)
-d1 = ([path for path in mypath.glob("**/01") if path.is_file( )])
-d2 = ([path for path in mypath.glob("**/001") if path.is_file( )])
+d1 = ([path for path in mypath.glob("**/01") if path.is_file()])
+d2 = ([path for path in mypath.glob("**/001") if path.is_file()])
 dicompathlist = d1 + d2
 
 # tag
-empty = [""]  # 行合わせの空白セル
+empty = []  # 行合わせの空白セル
 for x in dicompathlist:
     with open(x, mode="rb") as x:  # バイナリ読み込みで開く（ファイルオブジェクト）
         ds = pydicom.dcmread(x, force=True)
         dsstr = str(ds)
         dslist = [x.strip( ) for x in dsstr.split('\n')]
-        #ほかの病院のデータおよびCTDI、DLPが含まれていない画像の除去
+        # ほかの病院のデータおよびCTDI、DLPが含まれていない画像の除去
         if (str(ds[0x00080080].value) == 'SAGA_CHUBU_HOSPITAL' and
-                str(ds[0x00080016].value) == 'Secondary Capture Image Storage'):
-            # 　DLPを抽出
+                str(ds[0x00080016].value) == '1.2.840.10008.5.1.4.1.1.7'):
+            #DLPを抽出
+            ds_DLP = []
+            for i in ds[0x00400310].value.split("\r\n"):
+                ds_DLP.append(float(re.split(r"=", i)[-1]))
+            ds_DLP = [DLP for DLP in ds_DLP if DLP > 9]
             dslist_1 = [line for line in dslist if ('DLP' in line)]
             dsstr_1 = re.sub(r'TotalDLP=|Event=[0-9]|DLP=|\'"]', '', str(dslist_1))
             ds_dlp = (dsstr_1[56:].split('\\\\r\\\\n'))
