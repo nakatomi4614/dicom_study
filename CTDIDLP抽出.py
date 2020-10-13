@@ -30,8 +30,9 @@ for x in dicompathlist:
         ds = pydicom.dcmread(x, force=True)
         dsstr = str(ds)
         dslist = [x.strip( ) for x in dsstr.split('\n')]
+        #ほかの病院のデータおよびCTDI、DLPが含まれていない画像の除去
         if (str(ds[0x00080080].value) == 'SAGA_CHUBU_HOSPITAL' and
-                str(ds[0x00080016].value) == '1.2.840.10008.5.1.4.1.1.7'):
+                str(ds[0x00080016].value) == 'Secondary Capture Image Storage'):
             # 　DLPを抽出
             dslist_1 = [line for line in dslist if ('DLP' in line)]
             dsstr_1 = re.sub(r'TotalDLP=|Event=[0-9]|DLP=|\'"]', '', str(dslist_1))
