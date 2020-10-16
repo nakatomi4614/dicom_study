@@ -15,4 +15,6 @@ print(ds)
 ds_DLP = []
 for i in ds[0x00400310].value.split("\r\n"):
     ds_DLP.append(float(re.split(r"=", i)[-1]))
-ds_DLP = [DLP for DLP in ds_DLP if DLP > 9]
+#ds_DLP = [DLP for DLP in ds_DLP if DLP > 9]
+ds_DLP_max = max(ds_DLP)
+print(max(ds_DLP))
