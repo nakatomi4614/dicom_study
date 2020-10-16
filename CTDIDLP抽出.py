@@ -16,7 +16,7 @@ import re
 import pandas as pd
 import numpy as np
 
-# path設定
+# path設定　
 # dicomfilepath はDICOM fileのルートディレクトリを指定する
 # outputpath　はcsv出力先のpathを指定する
 # pathはとりあえずprogram内で直接指定している
