@@ -5,16 +5,24 @@ Created on Tue Oct 13 10:11:24 2020
 @author: neuph
 """
 import pydicom
-import re
-
+from pathlib import Path
+from matplotlib import pyplot as plt
+import cv2
+import pprint
 # ファイルパスを得る
-mypath = r"C:\新しいフォルダー\研究用\CTDIDLP\2020-0414\20190827\20190827_CT_0020\DICOM\01\01\01\01"
-# tag
-ds = pydicom.dcmread(mypath, force=True)
-print(ds)
-ds_DLP = []
-for i in ds[0x00400310].value.split("\r\n"):
-    ds_DLP.append(float(re.split(r"=", i)[-1]))
-#ds_DLP = [DLP for DLP in ds_DLP if DLP > 9]
-ds_DLP_max = max(ds_DLP)
-print(max(ds_DLP))
+dicomfilepath = r"C:\新しいフォルダー\研究用\2020九州長崎画像データ\DICOM"
+#savepath = r"C:\新しいフォルダー\研究用\2020九州長崎画像データ\jpg"
+mypath = Path(dicomfilepath)  # pathlib形式
+d1 = ([path for path in mypath.glob("**/*") if path.is_file( )])
+#pprint.pprint(d1)
+
+# dicom読み込み
+for x in d1:  # イテレータのdicompathlistからxにひとつづつ抜き出してループする
+    # mode = "rb"として、バイナリ読み込みで開く（重要）
+    # バイナリでないとpydicomは読み込まないでエラーとなる。
+    with open(x, mode="rb") as x:
+        ds = pydicom.dcmread(x, force=True) # DICOM画像を読み込む
+        #print(('WindowCenter' in ds) and ('WindowWidth' in ds))
+        dcm_img = ds.pixel_array
+        savepath = str(x.name)+".jpg"
+        cv2.imwrite(savepath, dcm_img,[cv2.IMWRITE_JPEG_QUALITY, 100])

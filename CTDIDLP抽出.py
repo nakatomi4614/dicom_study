@@ -25,6 +25,7 @@ outputpath = 'C:\新しいフォルダー\研究用\CTDIDLP\CTDIDLP.csv'
 
 # DICOM file pathを得る
 # 当方の環境で使用するファイル名が"01"もしくは"001"のため二つに分けて取得している
+# ルートフォルダを指定してそれ以下のfile pathを得る
 # 各施設の出力するファイルの形式に合わせる
 mypath = Path(dicomfilepath)  # pathlib形式
 d1 = ([path for path in mypath.glob("**/01") if path.is_file( )])
