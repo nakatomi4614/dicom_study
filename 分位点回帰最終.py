@@ -38,19 +38,22 @@ q = 0.75
 CTDIvol = 'CTDIvol ~ mAs'
 DLP = 'DLP ~ mAs'
 DLP_1 = 'DLP ~ weight'
+analisys_list =['CTDIvol ~ mAs','DLP ~ mAs','DLP ~ weight']
+data_list =[data,data_std]
+mod_list =[]
+res_list =[]
+for i in analisys_list:
+    for j in data_list:
+        mod = smf.quantreg(i, j)
+        res =mod.fit(q,max_iter=10000)
+        mod_list.append(mod)
+        res_list.append(res)
+params_list =[]
+for i in res_list:
+    params_list.append([i.prsquared,i.params['Intercept'],i.nobs])
+pprint.pprint(params_list)
 
-# CTDIvol
-""""
-#smirnov-grubbsデータ作成
-alpha = 0.05
-calc = smirnov_grubbs(data["CTDIvol"], alpha).ravel().tolist()
-data_smir = data.query("CTDIvol!=@calc")# query内で変数として認識させる場合は@をつける
-print("除外",calc)
-"""
-# mod_smir = smf.quantreg(CTDIvol, data_smir)
-# mod_list = [mod_all,mod_std,mod_smir]
-# resname_list =["CTDIvol_all","CTDIvol標準体重","CTDIvol Smirnov-Grubbs"]
-
+"""    
 mod_CTDIvolall = smf.quantreg(CTDIvol, data)
 mod_CTDIvolstd = smf.quantreg(CTDIvol, data_std)
 mod_list = [mod_CTDIvolall, mod_CTDIvolstd]
@@ -70,13 +73,7 @@ for mod in mod_list:
     print(res.summary( ))
 
 # DLP
-"""
-#smirnov-grubbsデータ作成
-alpha = 0.05
-calc = smirnov_grubbs(data["DLP"], alpha).ravel().tolist()
-data_smir = data.query("DLP!=@calc")
-print("除外",calc)
-"""
+
 
 mod_DLPall = smf.quantreg(DLP, data)
 mod_DLPstd = smf.quantreg(DLP, data_std)
@@ -125,13 +122,6 @@ pprint.pprint(res_list)
 pprint.pprint(sorted(set(res_list), key=res_list.index))
 
 
-"""
-print("参考")
-t2 = stats.t.ppf(0.975 , n1+n2-4)
-t3 = stats.t.sf(t2 , n1+n2-4)*2
-print("stats.t.ppf(0.975 , df)",t2,sep=":")
-print("stats.t.sf(t2 , df)*2",t3,sep=":")
-"""
 
 # quantiles = np.arange(0.25, 0.76, 0.25)
 quantiles = np.array([0.75])
@@ -248,3 +238,4 @@ ax.set_ylabel('DLP', fontsize=16);
 ax.set_title('mAs-DLP', loc='center')
 
 plt.show( )
+"""
